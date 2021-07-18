@@ -1,0 +1,235 @@
+###  Well-being Budget Code
+#include<fstream.h>
+#include<conio.h>
+#include<string.h>
+#include<stdio.h>
+#include<process.h>
+#include<graphics.h>
+
+class budget
+{
+ private:
+ float inc,sav;
+ float fexp,vexp,dexp,loan,ins;
+ char month[30];
+
+ public:
+
+ budget()
+ {
+  inc=0;
+  sav=0;
+  fexp=0;
+  vexp=0;
+  dexp=0;
+  loan=0;
+  ins=0;
+ }
+
+ void input();
+ void output();
+ void fcalc();
+ void compare();
+ void addmonth();
+ void menu();
+ void display();
+ void view();
+
+ float ruexp()
+ {
+  float uexp=fexp+vexp+loan+ins;
+  if(uexp<0)
+    {
+     uexp=uexp*(-1);
+     return(uexp);
+    }
+  else
+     {
+      return(uexp);
+     }
+
+ }
+ float rdexp()
+ {
+   if(dexp<0)
+    {
+     dexp=dexp*(-1);
+     return(dexp);
+    }
+  else
+     {
+      return(dexp);
+     }
+ }
+
+ float rinc()
+ {
+  return(inc);
+ }
+
+};
+
+budget B;
+
+void budget::input()
+{
+ clrscr();
+ cout<<"\nEnter month: ";
+ gets(month);
+ cout<<"\nEnter monthly income: ";
+ cin>>inc;
+ cout<<"\nEnter monthly fixed expense(Rent/School fees,etc): ";
+ cin>>fexp;
+ cout<<"\nEnter monthly variable expense(Bills/Petrol or Diesel,etc): ";
+ cin>>vexp;
+ cout<<"\nEnter monthly discretionary expense(Entertainment,recreational etc): ";
+ cin>>dexp;
+ cout<<"\nEnter loan amounts if any: ";
+ cin>>loan;
+ cout<<"\nEnter insurance amounts if any: ";
+ cin>>ins;
+ cout<<"\nEnter savings if any: ";
+ cin>>sav;
+}
+void budget::output()
+{
+ cout<<"\nEntered values are as follow\n";
+ cout<<"\nMonth: "<<month;
+ cout<<"\nMonthly income: "<<inc;
+ cout<<"\nFixed expense: "<<fexp+loan+ins;
+ cout<<"\nVariable expense: "<<vexp;
+ cout<<"\nDiscretionary expense: "<<dexp;
+ cout<<"\nSavings:"<<sav;
+}
+
+void budget::compare()
+{
+ float ffexp=0,fdexp=0,fsav=0,msav=0,texp=0;
+ ffexp=B.rinc()*0.50;
+ fdexp=B.rinc()*0.30;
+ fsav=B.rinc()*0.20;
+ texp=B.ruexp()+B.rdexp();
+ msav=inc-texp;
+
+ if(B.ruexp()>ffexp)
+   {
+    cout<<"\nExceeding utility expenses limit.";
+    cout<<"\nExceeded by "<<ffexp-B.ruexp();
+   }
+ else if(B.ruexp()==ffexp || B.ruexp()<ffexp)
+	{
+	 cout<<"\nUtility expenses within limit.";
+	}
+
+ if(B.rdexp()>fdexp)
+   {
+    cout<<"\nExceeding discretional expenses limit.";
+    cout<<"\nExceeded by "<<fdexp-B.rdexp();
+   }
+ else if(B.rdexp()==fdexp || B.rdexp()<fdexp)
+	{
+	 cout<<"\nDiscretional expenses within limit.";
+	}
+
+ if(msav>fsav)
+   {
+    cout<<"\nAmount saved this month is more than 20% of income.";
+    cout<<"\nSavings of this month: "<<msav;
+    cout<<"\n\nGood job and keep up the good spirit!!!";
+   }
+ else if(msav<fsav)
+	{
+	 cout<<"\nAmount saved this month is lesser than 20% of income.";
+	 cout<<"\nSavings short by "<<fsav-msav;
+	 cout<<"\nYou have to reduce the expenses.";
+	}
+}
+
+void budget::addmonth()
+{
+ clrscr();
+ ofstream fout("b.dat",ios::binary|ios::app);
+ clrscr();
+ B.input();
+ fout.write((char*)&B,sizeof(B));
+ fout.close();
+
+ B.display();
+ B.compare();
+}
+
+void budget::display()
+{
+ clrscr();
+ ifstream fin("b.dat",ios::binary|ios::in);
+ fin.seekg(0);
+ cout<<endl;
+ while(fin.read((char*)&B,sizeof(B)))
+      {
+       clrscr();
+       B.output();
+      }
+ fin.close();
+}
+
+void budget::view()
+{
+ clrscr();
+ char m[30];
+ ifstream fin("b.dat",ios::binary|ios::in);
+ fin.seekg(0);
+ cout<<endl;
+ cout<<"\nTo preview the data,enter the month: ";
+ gets(m);
+
+ clrscr();
+
+ while(fin.read((char*)&B,sizeof(B)))
+      {
+       if(strcmpi(m,month)==0)
+	 {
+	  B.output();
+	  B.compare();
+	 }
+      }
+  fin.close();
+}
+
+void budget::menu()
+{
+ clrscr();
+ int o;
+
+ cout<<"\nMAIN MENU\n";
+ cout<<"\n1.Enter current month data";
+ cout<<"\n2.View previous month data";
+ cout<<"\n3.Exit";
+
+ cout<<"\nEnter your option: ";
+ cin>>o;
+
+ switch(o)
+       {
+	case 1:
+	addmonth();
+	break;
+	case 2:
+	view();
+	break;
+	case 3:
+	exit(0);
+	break;
+	default:
+	cout<<"INVALID OPTION !!!";
+       }
+}
+
+void main()
+{
+ clrscr();
+ B.menu();
+ getch();
+}
+
+
+
